@@ -16,7 +16,7 @@ A modern, lightweight notes app frontend built with React. It provides a sidebar
   - `/notes/:id/edit` – edit note
 - State management with Context + reducer
 - Persistence:
-  - Uses backend API if `REACT_APP_API_BASE` or `REACT_APP_BACKEND_URL` is set
+  - Uses backend API if configured
   - Otherwise falls back to `localStorage`
 - Accessibility: labeled inputs, ARIA roles, keyboard-friendly buttons
 
@@ -33,17 +33,36 @@ By default, notes are saved to `localStorage`.
 
 ## Backend integration (optional)
 
-If you have a notes API, set one of the following in your `.env` file placed at the project root (`notes_frontend/.env`):
+If you have a notes API, create a `.env` file at `notes_frontend/.env` and set one of the following:
 
+Priority order:
+1) `REACT_APP_API_BASE` (preferred)
+2) `REACT_APP_BACKEND_URL` (fallback key)
+
+Example:
 ```
 REACT_APP_API_BASE=https://your-api.example.com
-# or
+# or, if you can't set the preferred key:
 REACT_APP_BACKEND_URL=https://your-api.example.com
 ```
 
-When configured, the app will attempt to use the backend. If the API is not reachable, it will gracefully fall back to `localStorage`.
+Behavior:
+- If neither is set, the app uses `localStorage`.
+- If set, the app will use the backend. If the API is unreachable or returns an error, the app will gracefully fall back to `localStorage` so users can continue working.
 
 See `.env.example` for all supported variables.
+
+## Verify CRUD and routing
+
+- Routes:
+  - `/` – overview/empty state
+  - `/notes/new` – create note
+  - `/notes/:id` – view note
+  - `/notes/:id/edit` – edit note
+- CRUD:
+  - Create, edit, and delete from editor and view pages.
+  - Without env vars: all actions persist to localStorage.
+  - With `REACT_APP_API_BASE` or `REACT_APP_BACKEND_URL`: actions go to the API first, then fall back to localStorage on failure.
 
 ## Project structure
 
@@ -55,7 +74,7 @@ See `.env.example` for all supported variables.
 - `src/pages/NoteEditorPage.js` – Create/Edit
 - `src/pages/NoteViewPage.js` – View
 - `src/state/NotesContext.js` – Context + reducer + CRUD actions
-- `src/services/apiClient.js` – Fetch wrapper using env vars
+- `src/services/apiClient.js` – Fetch wrapper using env vars with correct priority
 - `src/services/notesService.js` – API-first then localStorage fallback
 - `src/utils/storage.js` – localStorage helpers
 - `src/index.css`, `src/App.css` – Ocean Professional theme styles
@@ -65,6 +84,7 @@ See `.env.example` for all supported variables.
 - App loads with sidebar and empty state; user can create, edit, view, delete notes using localStorage (no env vars required)
 - Routing works: `/`, `/notes/new`, `/notes/:id`, `/notes/:id/edit`
 - `.env.example` includes `REACT_APP_API_BASE` and `REACT_APP_BACKEND_URL`
+- API base resolution prioritizes `REACT_APP_API_BASE` then `REACT_APP_BACKEND_URL`
 - Styles reflect the Ocean Professional theme
 
 ## Accessibility

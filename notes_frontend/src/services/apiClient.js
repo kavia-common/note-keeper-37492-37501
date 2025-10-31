@@ -1,6 +1,6 @@
 const BASE =
-  process.env.REACT_APP_API_BASE ||
-  process.env.REACT_APP_BACKEND_URL ||
+  (process.env.REACT_APP_API_BASE && String(process.env.REACT_APP_API_BASE)) ||
+  (process.env.REACT_APP_BACKEND_URL && String(process.env.REACT_APP_BACKEND_URL)) ||
   '';
 
 /**
@@ -13,10 +13,18 @@ export function getBaseUrl() {
 
 /**
  * PUBLIC_INTERFACE
+ * hasBackend indicates whether a backend API base URL is configured.
+ */
+export function hasBackend() {
+  return Boolean(BASE && BASE.trim());
+}
+
+/**
+ * PUBLIC_INTERFACE
  * apiClient wraps fetch for JSON APIs. If no BASE configured, throws for callers to fallback.
  */
 export async function apiClient(path, options = {}) {
-  if (!BASE) {
+  if (!hasBackend()) {
     throw new Error('NO_BACKEND_CONFIGURED');
   }
   const url = `${BASE.replace(/\/$/, '')}/${String(path).replace(/^\//, '')}`;
